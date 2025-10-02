@@ -1,0 +1,318 @@
+ATS MVP Development Checklist
+Complete implementation guide for your recruitment system
+
+🏗️ Phase 1: Project Setup & Foundation (Week 1)
+Backend Setup
+ Create Spring Boot Project
+Use Spring Initializr or your IDE to generate project
+Include dependencies: Web, JPA, Security, Validation, PostgreSQL
+Set up Maven/Gradle build configuration
+File: pom.xml or build.gradle
+ Configure Database Connection
+Create PostgreSQL database named ats_db
+Configure application.properties with database credentials
+Set JPA properties: hibernate.ddl-auto=create-drop for development
+File: src/main/resources/application.properties
+properties
+  spring.datasource.url=jdbc:postgresql://localhost:5432/ats_db
+  spring.datasource.username=your_username
+  spring.datasource.password=your_password
+  spring.jpa.hibernate.ddl-auto=create-drop
+  spring.jpa.show-sql=true
+  spring.jpa.properties.hibernate.format_sql=true
+ Create Entity Classes
+Create all entity classes (User, Company, Job, Candidate, Application, ApplicationNote)
+Add proper JPA annotations (@Entity, @Table, @Column, etc.)
+Implement relationships (@OneToMany, @ManyToOne)
+Add validation annotations (@NotBlank, @Email, etc.)
+Location: src/main/java/com/ats/entity/
+ Create Repository Interfaces
+Extend JpaRepository for each entity
+Add custom query methods for business logic
+Location: src/main/java/com/ats/repository/
+Frontend Setup
+ Initialize React Project
+Run: npm create vite@latest ats-frontend -- --template react
+Install additional dependencies: axios, react-router-dom, @tanstack/react-query
+bash
+  npm install axios react-router-dom @tanstack/react-query lucide-react
+  npm install -D tailwindcss postcss autoprefixer
+  npx tailwindcss init -p
+ Configure Tailwind CSS
+Update tailwind.config.js with content paths
+Add Tailwind directives to src/index.css
+Files: tailwind.config.js, src/index.css
+ Set Up Project Structure
+  src/
+  ├── components/
+  │   ├── common/
+  │   ├── candidates/
+  │   ├── jobs/
+  │   ├── companies/
+  │   └── applications/
+  ├── pages/
+  ├── hooks/
+  ├── services/
+  └── utils/
+🔐 Phase 2: Authentication & Security (Week 1-2)
+Backend Authentication
+ Implement JWT Authentication
+Create JwtUtils class for token generation/validation
+Implement UserDetailsService
+Create authentication filter
+Location: src/main/java/com/ats/security/
+ Create Auth Controller
+Implement /auth/login endpoint
+Implement /auth/register endpoint (admin only)
+Add password encryption with BCrypt
+File: src/main/java/com/ats/controller/AuthController.java
+ Configure Spring Security
+Create SecurityConfig class
+Configure CORS for React frontend
+Set up JWT filter chain
+Allow public access to login/register endpoints
+Frontend Authentication
+ Create Auth Context
+Implement React Context for user state management
+Store JWT token in localStorage (with expiration)
+File: src/contexts/AuthContext.jsx
+ Build Login Page
+Create responsive login form
+Handle form validation
+Display error messages
+Redirect to dashboard on success
+File: src/pages/Login.jsx
+ Create Protected Route Component
+Check authentication status
+Redirect unauthenticated users to login
+File: src/components/ProtectedRoute.jsx
+ Implement Axios Interceptors
+Automatically attach JWT token to requests
+Handle 401 responses (token expiration)
+File: src/services/api.js
+👥 Phase 3: Core Entities Management (Week 2-3)
+Companies Management
+ Backend Company Service
+Create CompanyService with CRUD operations
+Implement search functionality
+Add validation for required fields
+File: src/main/java/com/ats/service/CompanyService.java
+ Company Controller
+GET /api/companies (list all)
+POST /api/companies (create new)
+PUT /api/companies/{id} (update)
+DELETE /api/companies/{id} (soft delete)
+GET /api/companies/search?q={query} (search)
+ Frontend Company Components
+Company list page with search bar
+Add/Edit company modal/form
+Company detail view
+Files: src/pages/Companies.jsx, src/components/companies/CompanyForm.jsx
+Candidates Management
+ Backend Candidate Service
+Implement CRUD operations
+Add duplicate email validation
+Create search by name, email, skills
+File: src/main/java/com/ats/service/CandidateService.java
+ Candidate Controller
+Standard CRUD endpoints
+Advanced search with multiple filters
+Resume file upload endpoint (optional for MVP)
+ Frontend Candidate Components
+Candidate database with search/filter
+Add candidate form with validation
+Candidate profile page
+Key Features: LinkedIn URL field, skills tags, experience tracking
+Jobs Management
+ Backend Job Service
+CRUD operations with company association
+Job status management (Open, On Hold, Filled)
+Priority-based sorting
+File: src/main/java/com/ats/service/JobService.java
+ Job Controller
+List jobs by status/priority
+Filter by company, assigned recruiter
+Job analytics (application count, conversion rates)
+ Frontend Job Components
+Job board view (Kanban-style by status)
+Job creation form with rich text description
+Job details with application statistics
+📋 Phase 4: Application Tracking System (Week 3-4)
+Application Management
+ Backend Application Service
+Create application with candidate-job linking
+Status progression workflow
+Prevent duplicate applications
+File: src/main/java/com/ats/service/ApplicationService.java
+ Application Controller
+GET /api/applications/job/{jobId} (applications for a job)
+POST /api/applications (create new application)
+PUT /api/applications/{id}/status (update status)
+GET /api/applications/follow-up (applications needing follow-up)
+ Frontend Application Board
+Kanban Board Implementation:
+Columns: Applied → Screening → Interviewing → Offer → Hired/Rejected
+Drag and drop to change status
+Card shows candidate name, rating, last contact date
+File: src/components/applications/ApplicationBoard.jsx
+Notes & Communication Tracking
+ Backend Note Service
+CRUD for application notes
+Different note types (Call, Email, Interview, General)
+Schedule follow-up reminders
+File: src/main/java/com/ats/service/ApplicationNoteService.java
+ Frontend Notes Component
+Timeline view of all notes for an application
+Quick add note functionality
+Follow-up date picker
+File: src/components/applications/NotesTimeline.jsx
+📊 Phase 5: Dashboard & Analytics (Week 4-5)
+Dashboard Backend
+ Create Analytics Service
+Calculate key metrics:
+Applications per job
+Conversion rates by stage
+Average time-to-fill
+Recruiter performance
+File: src/main/java/com/ats/service/AnalyticsService.java
+ Dashboard Controller
+GET /api/dashboard/stats (overall statistics)
+GET /api/dashboard/recent-activity (recent applications, notes)
+GET /api/dashboard/follow-ups (tasks requiring attention)
+Dashboard Frontend
+ Main Dashboard Page
+Key metrics cards (Total Jobs, Active Applications, etc.)
+Recent activity feed
+Follow-up reminders
+Quick action buttons
+File: src/pages/Dashboard.jsx
+ Charts and Visualizations
+Application status distribution (pie chart)
+Applications over time (line chart)
+Use Chart.js or Recharts library
+File: src/components/dashboard/Charts.jsx
+🔍 Phase 6: Search & LinkedIn Integration (Week 5)
+Enhanced Search
+ Global Search Service
+Search across candidates, jobs, companies
+Implement full-text search
+File: src/main/java/com/ats/service/SearchService.java
+ Search Controller
+GET /api/search?q={query}&type={candidates|jobs|companies}
+Advanced filters (experience, location, salary range)
+LinkedIn Profile Parser (Manual)
+ LinkedIn Data Entry Form
+Quick-add candidate form with LinkedIn URL field
+Pre-fill fields for manual data entry
+Store LinkedIn URL for reference
+Note: Due to LinkedIn's anti-scraping policies, this will be manual data entry
+File: src/components/candidates/LinkedInCandidateForm.jsx
+🚀 Phase 7: Testing & Deployment (Week 6)
+Backend Testing
+ Unit Tests
+Test service layer methods
+Test repository custom queries
+Test authentication flows
+Location: src/test/java/com/ats/service/
+ Integration Tests
+Test API endpoints with mock data
+Test database operations
+Location: src/test/java/com/ats/controller/
+Frontend Testing
+ Component Tests
+Test form validation
+Test navigation flows
+Test API error handling
+Deployment Preparation
+ Configure Production Database
+Change hibernate.ddl-auto to validate
+Set up database migrations (Flyway optional)
+Configure connection pooling
+ Build & Deploy Backend
+Create production application-prod.properties
+Build JAR: mvn clean package
+Deploy to DigitalOcean/AWS/Heroku
+ Build & Deploy Frontend
+Configure API base URL for production
+Build: npm run build
+Deploy to Netlify/Vercel or serve from same server
+🎯 Phase 8: MVP Polish & Documentation (Week 6-7)
+User Experience
+ Responsive Design
+Test on mobile devices
+Ensure all forms work on smaller screens
+Optimize loading states
+ Error Handling
+Friendly error messages
+Loading spinners
+Offline state handling
+ Data Validation
+Client-side form validation
+Server-side validation with proper error responses
+Prevent duplicate data entry
+Documentation & Training
+ Create User Manual
+How to add candidates and jobs
+Application workflow explanation
+Reporting features guide
+ Setup Development Guide
+Environment setup instructions
+Database schema documentation
+API endpoint documentation
+🔧 Technical Implementation Notes
+Key Files to Create:
+Backend Structure:
+
+src/main/java/com/ats/
+├── AtsApplication.java
+├── config/
+│   └── SecurityConfig.java
+├── controller/
+│   ├── AuthController.java
+│   ├── CandidateController.java
+│   ├── JobController.java
+│   ├── ApplicationController.java
+│   └── DashboardController.java
+├── service/
+│   ├── UserService.java
+│   ├── CandidateService.java
+│   ├── JobService.java
+│   ├── ApplicationService.java
+│   └── AnalyticsService.java
+├── repository/
+├── entity/
+├── dto/
+└── security/
+    ├── JwtUtils.java
+    └── CustomUserDetailsService.java
+Frontend Structure:
+
+src/
+├── App.jsx
+├── main.jsx
+├── pages/
+│   ├── Dashboard.jsx
+│   ├── Candidates.jsx
+│   ├── Jobs.jsx
+│   └── Applications.jsx
+├── components/
+│   ├── Layout.jsx
+│   ├── Navigation.jsx
+│   └── [feature-specific folders]
+├── contexts/
+│   └── AuthContext.jsx
+└── services/
+    └── api.js
+Development Tips:
+Start with the database - Ensure your schema works before building controllers
+Build incrementally - Complete one entity fully before moving to the next
+Test as you go - Use Postman for API testing, console.log for frontend debugging
+Focus on core workflow first - Perfect the candidate → application → hiring flow
+Keep it simple - Avoid over-engineering; you can always add features later
+Estimated Timeline: 6-7 weeks
+Weeks 1-2: Foundation + Authentication
+Weeks 3-4: Core functionality
+Weeks 5-6: Advanced features + Testing
+Week 7: Polish + Deployment
+This checklist will give you a fully functional ATS that replaces your Trello workflow with a professional recruitment management system!
+
